@@ -27,14 +27,20 @@ group by c.class
 --task3
 --Корабли: Для классов, имеющих потери в виде потопленных кораблей и не менее 3 кораблей в базе данных, вывести имя класса и число потопленных кораблей.
 
-select c.class, count(o.result)
-from ships s
-join outcomes o 
-on s.name = o.ship
-join classes c 
-on s.class = c.class
-group by c.class
-having result = 'sunk' and count(o.ship) > 2
+select name, s 
+from (
+SELECT c.class as name, SUM(outc) as s, count(*) as c
+FROM Classes c LEFT JOIN 
+ Ships s ON c.class = s.class LEFT JOIN 
+ (
+ SELECT ship, 1 as outc 
+ FROM Outcomes 
+ WHERE result = 'sunk'
+ ) o ON s.name = o.ship OR 
+ c.class = o.ship 
+GROUP BY c.class
+) a 
+where s is not null and c >= 3
 	
 
 --task4
